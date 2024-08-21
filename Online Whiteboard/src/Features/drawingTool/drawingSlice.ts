@@ -1,47 +1,51 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-type Method = 'line' | 'rectangle' | 'circle';
+interface Point {
+  x: number;
+  y: number;
+}
 
 interface Element {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  roughEle: any;
-  type: Method;
+  type: 'line' | 'rectangle' | 'circle' | 'pencil';
+  points: Point[];
 }
 
 interface DrawingState {
   elements: Element[];
+  points: Point[];
   drawing: boolean;
-  shapeType: Method;
+  shapeType: string;
 }
 
 const initialState: DrawingState = {
   elements: [],
+  points: [],
   drawing: false,
-  shapeType: 'line', 
+  shapeType: 'pencil',
 };
 
 const drawingSlice = createSlice({
   name: 'drawing',
   initialState,
   reducers: {
-    startDrawing: (state, action: PayloadAction<Element>) => {
+    startDrawing: (state) => {
       state.drawing = true;
-      state.elements.push(action.payload);
     },
     finishDrawing: (state) => {
       state.drawing = false;
+      state.points = [];
     },
-    updateElement: (state, action: PayloadAction<{ index: number; element: Element }>) => {
-      state.elements[action.payload.index] = action.payload.element;
+    addPoint: (state, action: PayloadAction<Point>) => {
+      state.points.push(action.payload);
     },
-    setShapeType: (state, action: PayloadAction<Method>) => {
+    setShapeType: (state, action: PayloadAction<string>) => {
       state.shapeType = action.payload;
+    },
+    addElement: (state, action: PayloadAction<Element>) => {
+      state.elements.push(action.payload);
     },
   },
 });
 
-export const { startDrawing, finishDrawing, updateElement, setShapeType } = drawingSlice.actions;
+export const { startDrawing, finishDrawing, addPoint, setShapeType, addElement } = drawingSlice.actions;
 export default drawingSlice.reducer;

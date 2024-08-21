@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import drawingReducer from "../Features/drawingTool/drawingSlice"
+import drawingReducer from '../Features/drawingTool/drawingSlice';
 
-const store = configureStore({
+
+export const store = configureStore({
   reducer: {
     drawing: drawingReducer,
   },
 });
 
-export default store;
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
