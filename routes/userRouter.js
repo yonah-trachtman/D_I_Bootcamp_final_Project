@@ -7,12 +7,10 @@ const { verifyToken } = require("../middlewares/verifyToken.js");
 router.post("/register", userControler.registerUser);
 router.post("/login", userControler.loginUser);
 
-router.get("/all", verifyToken, userControler.getAllUsers);
-router.get("/byid", verifyToken, userControler.getUserById);
 
-router.get("/auth", verifyToken, (req, res) => {
 
-  // 
+router.get("/user", verifyToken, (req, res) => {
+
   res.sendStatus(201);
 });
 

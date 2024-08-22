@@ -14,12 +14,10 @@ const verifyToken = (req, res, next) => {
     if (err)
       return res.status(403).json({ message: "forbidden", error: err.message });
 
-    const { userid, email } = decode;
+    const { userid, board_user } = decode;
     req.userid = userid;
-    req.email = email;
-    // req.userinfo = decode
+    req.board_user = board_user;
 
-    // console.log(req);
 
     next();
   });

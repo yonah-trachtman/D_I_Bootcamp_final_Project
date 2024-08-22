@@ -8,12 +8,12 @@ module.exports = {
     const trx = await db.transaction();
 
     try {
-      //hash the password and insert into the' hashpwd table
+
       const hashPassword = await bcrypt.hash(password + "", 10);
 
-      const [user] = await trx("authusers").insert(
-        { email, password: hashPassword },
-        ["email", "id"]
+      const [user] = await trx("whiteboardusers").insert(
+        { board_user, password: hashPassword },
+        ["user", "id"]
       );
 
       await trx.commit();
