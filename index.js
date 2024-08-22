@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const userControler = require("./controllers/userController.js");
 const { verifyToken } = require("./middlewares/verifyToken.js");
+const path = require("path");
 const app = express();
 
 app.use(cors());
