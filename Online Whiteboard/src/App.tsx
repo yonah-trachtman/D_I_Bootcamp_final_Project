@@ -14,7 +14,7 @@ function App() {
     <Header/>
       <Routes>
         <Route path='/' element={<LoginRegister title={"Login"} />} />
-        <Route path='/register' element={<LoginRegister title={"Rgister"} />} />
+        <Route path='/register' element={<LoginRegister title={"Register"} />} />
         <Route path='/whiteboard' element={<DrawingTool  />} />
       </Routes>
 
