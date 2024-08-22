@@ -11,6 +11,7 @@ router.post("/login", userControler.loginUser);
 
 router.get("/user", verifyToken, (req, res) => {
 
+
   res.sendStatus(201);
 });
 

@@ -26,11 +26,11 @@ module.exports = {
     }
   },
 
-  getUserByEmail: async (email = "") => {
+  getUserByName: async (board_user = "") => {
     try {
-      const user = await db("authusers")
-        .select("id", "email", "password")
-        .where("email", email)
+      const user = await db("whiteboardusers")
+        .select("id", "board_user", "password")
+        .where("board_user", board_user)
         .first();
       return user;
     } catch (error) {
@@ -38,27 +38,10 @@ module.exports = {
     }
   },
 
-  getAllUsers: async () => {
-    try {
-      const users = await db("authusers");
-      return users;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  getUserById: async (id) => {
-    try {
-      const [user] = await db("authusers").where({ id });
-      return user;
-    } catch (error) {
-      throw error;
-    }
-  },
 
   updateRefreshToken: async (refresh, id) => {
     try {
-      const user = await db("authusers")
+      const user = await db("whiteboardusers")
         .update({ token: refresh })
         .where({ id });
       return user;
