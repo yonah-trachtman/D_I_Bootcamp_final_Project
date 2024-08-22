@@ -1,12 +1,14 @@
-import React from 'react';
-import './App.css';
-import DrawingTool from './Componants/DrawingTool';
-// import PencilTool from './components/penciltool';
+import React, { useState } from 'react';
+import DrawingTool from './Features/drawingTool/DrawingTool';
+
 
 function App() {
+
+
+
   return (
-    <div className='App'>
-      <DrawingTool />       {/* //Change this line to <PencilTool /> to render pencil */}
+    <div className="App">
+      <DrawingTool  />
     </div>
   );
 }
