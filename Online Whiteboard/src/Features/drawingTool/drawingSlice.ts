@@ -6,7 +6,7 @@ interface Point {
 }
 
 interface Element {
-  type: 'line' | 'rectangle' | 'circle' | 'pencil';
+  type: 'line' | 'rectangle' | 'circle' | 'pencil' | 'eraser';
   points: Point[];
 }
 
