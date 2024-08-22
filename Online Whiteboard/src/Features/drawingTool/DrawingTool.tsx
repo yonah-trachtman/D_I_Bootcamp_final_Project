@@ -10,7 +10,7 @@ interface Point {
 }
 
 interface Element {
-  type: 'line' | 'rectangle' | 'circle' | 'pencil';
+  type: 'line' | 'rectangle' | 'circle' | 'pencil' | 'eraser';
   points: Point[];
 }
 
@@ -64,6 +64,11 @@ const DrawingTool: React.FC = () => {
         type: 'pencil',
         points: [...points],
       };
+    } else if (shapeType === 'eraser') {
+      newElement = {
+        type: 'eraser',
+        points: [...points],
+      };
     }
 
     if (newElement) {
@@ -79,7 +84,6 @@ const DrawingTool: React.FC = () => {
 
     if (ctx) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
 
       elements.forEach((element) => {
         if (element.type === 'line') {
@@ -109,9 +113,19 @@ const DrawingTool: React.FC = () => {
             ctx.lineTo(point.x, point.y);
           });
           ctx.stroke();
+        } else if (element.type === 'eraser') {
+          ctx.strokeStyle = 'white';
+          ctx.lineWidth = 10;
+          ctx.beginPath();
+          ctx.moveTo(element.points[0].x, element.points[0].y);
+          element.points.forEach((point) => {
+            ctx.lineTo(point.x, point.y);
+          });
+          ctx.stroke();
+          ctx.strokeStyle = 'black';
+          ctx.lineWidth = 1;
         }
       });
-
 
       if (points.length > 1) {
         if (shapeType === 'line') {
@@ -141,6 +155,17 @@ const DrawingTool: React.FC = () => {
             ctx.lineTo(point.x, point.y);
           });
           ctx.stroke();
+        } else if (shapeType === 'eraser') {
+          ctx.strokeStyle = 'white';
+          ctx.lineWidth = 10;
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
+          points.slice(1).forEach((point) => {
+            ctx.lineTo(point.x, point.y);
+          });
+          ctx.stroke();
+          ctx.strokeStyle = 'black';
+          ctx.lineWidth = 1;
         }
       }
     }
@@ -148,46 +173,52 @@ const DrawingTool: React.FC = () => {
 
   return (
     <div>
-    <div style={{ marginBottom: '10px', textAlign: 'center' }}>
-      <button
-        className={shapeType === 'line' ? 'active' : ''}
-        onClick={() => dispatch(setShapeType('line'))}
-      >
-        Line
-      </button>
-      <button
-        className={shapeType === 'rectangle' ? 'active' : ''}
-        onClick={() => dispatch(setShapeType('rectangle'))}
-      >
-        Rectangle
-      </button>
-      <button
-        className={shapeType === 'circle' ? 'active' : ''}
-        onClick={() => dispatch(setShapeType('circle'))}
-      >
-        Circle
-      </button>
-      <button
-        className={shapeType === 'pencil' ? 'active' : ''}
-        onClick={() => dispatch(setShapeType('pencil'))}
-      >
-        Pencil
-      </button>
+      <div style={{ marginBottom: '10px', textAlign: 'center' }}>
+        <button
+          className={shapeType === 'line' ? 'active' : ''}
+          onClick={() => dispatch(setShapeType('line'))}
+        >
+          Line
+        </button>
+        <button
+          className={shapeType === 'rectangle' ? 'active' : ''}
+          onClick={() => dispatch(setShapeType('rectangle'))}
+        >
+          Rectangle
+        </button>
+        <button
+          className={shapeType === 'circle' ? 'active' : ''}
+          onClick={() => dispatch(setShapeType('circle'))}
+        >
+          Circle
+        </button>
+        <button
+          className={shapeType === 'pencil' ? 'active' : ''}
+          onClick={() => dispatch(setShapeType('pencil'))}
+        >
+          Pencil
+        </button>
+        <button
+          className={shapeType === 'eraser' ? 'active' : ''}
+          onClick={() => dispatch(setShapeType('eraser'))}
+        >
+          Eraser
+        </button>
+      </div>
+      <canvas
+        id="canvas"
+        width={window.innerWidth}
+        height={window.innerHeight * 0.9}
+        style={{
+          border: '2px solid black',
+          display: 'block',
+          margin: '0 auto',
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+      />
     </div>
-    <canvas
-      id="canvas"
-      width={window.innerWidth}
-      height={window.innerHeight * .9}
-      style={{
-        border: '2px solid black',
-        display: 'block',
-        margin: '0 auto',
-      }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-    />
-  </div>
   );
 };
 
