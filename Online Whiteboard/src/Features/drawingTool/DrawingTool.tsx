@@ -177,7 +177,7 @@ const DrawingTool: React.FC = () => {
     <canvas
       id="canvas"
       width={window.innerWidth}
-      height={window.innerHeight}
+      height={window.innerHeight * .9}
       style={{
         border: '2px solid black',
         display: 'block',
