@@ -3,7 +3,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, TextField, Button } from "@mui/material";
 
-const LoginRegister = ({ title } ) => {
+interface LoginRegisterProps {
+  title: string;
+}
+
+const LoginRegister: React.FC<LoginRegisterProps> = ({ title } ) => {
   const [user, setUser] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [message, setMessage] = useState<string>("");
