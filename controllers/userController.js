@@ -2,12 +2,11 @@ const userModel = require("../models/userModel.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-
 module.exports = {
   registerUser: async (req, res) => {
     const { password, board_user } = req.body;
 
-    const user = { password, board_user };
+    const user = { password, board_user };  // Ensure `board_user` is correctly included
 
     try {
       const userInfo = await userModel.createUser(user);
@@ -17,10 +16,10 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
-      if (error.code == 23505) {
-        return res.status(200).json({ message: "User already exist" });
+      if (error.code === "23505") {  // Duplicate key error
+        return res.status(409).json({ message: "User already exists" });
       }
-      res.status(500).json({ message: "internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     }
   },
   loginUser: async (req, res) => {
@@ -30,52 +29,54 @@ module.exports = {
       const user = await userModel.getUserByName(board_user);
 
       if (!user) {
-        return res.status(404).json({ message: "User not found, ...." });
+        return res.status(404).json({ message: "User not found" });
       }
 
-      const passwordMatch = await bcrypt.compare(password + "", user.password);
+      const passwordMatch = await bcrypt.compare(password, user.password);
 
       if (!passwordMatch) {
-        return res.status(401).json({ message: "Authentication failed..." });
+        return res.status(401).json({ message: "Authentication failed" });
       }
-
 
       const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = process.env;
 
       const accesstoken = jwt.sign(
         { userid: user.id, board_user: user.board_user },
         ACCESS_TOKEN_SECRET,
-        { expiresIn: "120s" }
+        { expiresIn: "15m" }  // Adjusted to 15 minutes
       );
 
       const refreshtoken = jwt.sign(
         { userid: user.id, board_user: user.board_user },
         REFRESH_TOKEN_SECRET,
-        { expiresIn: "3d" }
+        { expiresIn: "7d" }  // Adjusted to 7 days
       );
 
-  
       res.cookie("token", accesstoken, {
         httpOnly: true,
-        maxAge: 120 * 1000,
+        maxAge: 15 * 60 * 1000,  // 15 minutes
+        sameSite: "None",
+        secure: process.env.NODE_ENV === "production",
       });
 
       res.cookie("refresh", refreshtoken, {
         httpOnly: true,
-        maxAge: 60 * 60 * 1000 * 24,
+        maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
+        sameSite: "None",
+        secure: process.env.NODE_ENV === "production",
       });
 
       await userModel.updateRefreshToken(refreshtoken, user.id);
 
       res.json({
-        message: "Login succesfully",
+        message: "Login successful",
         user: { userid: user.id, board_user: user.board_user },
         token: accesstoken,
         refresh: refreshtoken,
       });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ message: "internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 }
