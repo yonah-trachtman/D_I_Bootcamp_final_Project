@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Box, TextField, Button } from "@mui/material";
 import { loginUser, registerUser, clearMessage } from "./userSlice"; 
-import { RootState } from "../app/store"; 
+import { RootState, useAppDispatch } from "../app/store"; 
 // import { throttle } from "lodash"
 
 interface LoginRegisterProps {
@@ -14,7 +14,7 @@ const LoginRegister: React.FC<LoginRegisterProps> = ({ title }) => {
   const [board_user, setBoardUser] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { message, status } = useSelector((state: RootState) => state.user);
 
