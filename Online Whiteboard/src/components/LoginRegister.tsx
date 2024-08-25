@@ -40,7 +40,6 @@ useEffect(() => {
     }
   };
 
-  // Optionally clear the message on component mount
   useEffect(() => {
     dispatch(clearMessage());
   }, [dispatch]);
