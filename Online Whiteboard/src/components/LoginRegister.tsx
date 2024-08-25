@@ -35,7 +35,8 @@ useEffect(() => {
   const handleSubmit = () => {
     if (title === "Login") {
       dispatch(loginUser({ board_user, password }));
-    } else {
+    } else if (title === "Register") {
+      // Dispatch register action
       dispatch(registerUser({ board_user, password }));
     }
   };
