@@ -1,14 +1,24 @@
 const express = require("express");
-const userRouter = require("./routes/userRouter.js");
+const userRouter = require("./routes/userRouter.js");  // Correct import
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const userControler = require("./controllers/userController.js");
-const { verifyToken } = require("./middlewares/verifyToken.js");
 const path = require("path");
 const app = express();
 
-app.use(cors());
+// Configure CORS with credentials
+app.use(
+  cors({
+    credentials: true,
+    origin: ["http://localhost:5173", "http://localhost:3001"],
+  })
+);
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
+
+// Use the user router
+app.use("/user", userRouter);  // This mounts the userRouter on the /user path
 
 // Serve static files from the 'Online Whiteboard/build' directory
 app.use(express.static(path.join(__dirname, 'Online Whiteboard/build')));
@@ -21,7 +31,3 @@ app.get('*', (req, res) => {
 app.listen(process.env.PORT || 3001, () => {
   console.log(`Server listening on ${process.env.PORT || 3001}`);
 });
-
-// router.get("/all", verifyToken, userControler.getAllUsers);
-// router.post("/register", userControler.registerUser);
-// router.post("/login", userControler.loginUser);

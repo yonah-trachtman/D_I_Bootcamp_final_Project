@@ -1,19 +1,17 @@
 const { db } = require("../config/db.js");
 const bcrypt = require("bcrypt");
-
 module.exports = {
   createUser: async (userinfo) => {
-    const { password, email } = userinfo;
+    const { password, board_user } = userinfo; // Make sure `board_user` is destructured here
 
     const trx = await db.transaction();
 
     try {
-
-      const hashPassword = await bcrypt.hash(password + "", 10);
+      const hashPassword = await bcrypt.hash(password, 10);
 
       const [user] = await trx("whiteboardusers").insert(
         { board_user, password: hashPassword },
-        ["user", "id"]
+        ["id", "board_user"]
       );
 
       await trx.commit();
@@ -37,7 +35,6 @@ module.exports = {
       throw error;
     }
   },
-
 
   updateRefreshToken: async (refresh, id) => {
     try {

@@ -1,70 +1,49 @@
-// import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Box, TextField, Button } from "@mui/material";
+import { loginUser, registerUser, clearMessage } from "./userSlice"; 
+import { RootState } from "../app/store"; 
+import { throttle } from 'lodash';
 
 interface LoginRegisterProps {
   title: string;
 }
 
-const LoginRegister: React.FC<LoginRegisterProps> = ({ title } ) => {
-  const [user, setUser] = useState<string>("");
+const LoginRegister: React.FC<LoginRegisterProps> = ({ title }) => {
+  const [board_user, setBoardUser] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
 
-  const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { message, status } = useSelector((state: RootState) => state.user);
 
-  // const loginregister = async () => {
-  //   if (title === "Login") {
-  //     try {
-  //       const response = await axios.post(
-  //         "http://localhost:5000/user/login",
-  //         { email, password },
-  //         { withCredentials: true }
-  //       );
+  
 
-  //       if (response.status === 200) {
-  //         setMessage(response.data.message);
-  //         console.log(response.data);
-  //         navigate('/')
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //       setMessage(error.response.data.message);
-  //     }
-  //   }
-  //   else{
-  //       try {
-  //           const response = await axios.post(
-  //             "http://localhost:5000/user/register",
-  //             { email, password },
-  //             { withCredentials: true }
-  //           );
-    
-  //           if (response.status === 201) {
-  //             setMessage(response.data.message);
-  //             console.log(response.data);
-  //             // context
-  //             navigate('/login')
-  //           }
-  //           else if(response.status === 200 ){
-  //               setMessage(response.data.message);
-  //             console.log(response.data);
-  //           }
-  //         } catch (error) {
-  //           console.log(error);
-  //           setMessage(error.response.data.message);
-  //         }
-  //   }
-  // };
+const throttledNavigate = throttle(navigate, 1000);
 
-  const loginregister = (): void => {
-    if (user === "J" && password === "me") {
-      navigate("/whiteboard");
+useEffect(() => {
+  if (status === "succeeded") {
+    if (title === "Login") {
+      throttledNavigate("/whiteboard");
+    } else if (title === "Register") {
+      throttledNavigate("/login");
+    }
+  }
+}, [status, title, throttledNavigate]);
+
+  const handleSubmit = () => {
+    if (title === "Login") {
+      dispatch(loginUser({ board_user, password }));
     } else {
-      setMessage("failed login");
+      dispatch(registerUser({ board_user, password }));
     }
   };
+
+  // Optionally clear the message on component mount
+  useEffect(() => {
+    dispatch(clearMessage());
+  }, [dispatch]);
 
   return (
     <>
@@ -72,11 +51,11 @@ const LoginRegister: React.FC<LoginRegisterProps> = ({ title } ) => {
       <Box component={"form"} sx={{ m: 1 }} noValidate autoComplete="off">
         <TextField
           sx={{ m: 1 }}
-          id="user"
+          id="board_user"
           type="text"
-          label="Enter user..."
+          label="Enter username..."
           variant="outlined"
-          onChange={(e) => setUser(e.target.value)}
+          onChange={(e) => setBoardUser(e.target.value)}
         />
 
         <TextField
@@ -88,7 +67,7 @@ const LoginRegister: React.FC<LoginRegisterProps> = ({ title } ) => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </Box>
-      <Button variant="contained" onClick={loginregister}>
+      <Button variant="contained" onClick={handleSubmit} disabled={status === "loading"}>
         {title}
       </Button>
       <div>{message}</div>

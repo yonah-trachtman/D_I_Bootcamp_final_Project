@@ -8,7 +8,7 @@ interface HeaderProps {}
 const Header: React.FC<HeaderProps> = () => {
   return (
     <Stack spacing={2} direction={"row"}>
-      <Button component={Link} to="/">
+      <Button component={Link} to="/login">
         Login
       </Button>
       <Button component={Link} to="/register">
