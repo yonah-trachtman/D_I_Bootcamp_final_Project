@@ -1,5 +1,5 @@
 const express = require("express");
-const userRouter = require("./routes/userRouter.js");  // Correct import
+const userRouter = require("./routes/userRouter.js"); 
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const path = require("path");
@@ -9,7 +9,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: process.env.CORS_ORIGIN || "http://localhost:3001",
+    origin: ["http://localhost:5173", "http://localhost:3001", ],
   })
 );
 
