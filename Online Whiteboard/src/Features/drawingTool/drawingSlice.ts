@@ -8,6 +8,8 @@ interface Point {
 interface Element {
   type: 'line' | 'rectangle' | 'circle' | 'pencil' | 'eraser';
   points: Point[];
+  color: string;
+  width: number;
 }
 
 interface DrawingState {
@@ -15,6 +17,8 @@ interface DrawingState {
   points: Point[];
   drawing: boolean;
   shapeType: string;
+  color: string;
+  width: number;
 }
 
 const initialState: DrawingState = {
@@ -22,6 +26,8 @@ const initialState: DrawingState = {
   points: [],
   drawing: false,
   shapeType: 'pencil',
+  color: 'black',
+  width: 1
 };
 
 const drawingSlice = createSlice({
@@ -44,8 +50,14 @@ const drawingSlice = createSlice({
     addElement: (state, action: PayloadAction<Element>) => {
       state.elements.push(action.payload);
     },
+    setColor(state, action: PayloadAction<string>) { 
+      state.color = action.payload;
+    },
+    setWidth(state, action: PayloadAction<number>) { 
+      state.width = action.payload;
+    },
   },
 });
 
-export const { startDrawing, finishDrawing, addPoint, setShapeType, addElement } = drawingSlice.actions;
+export const { startDrawing, finishDrawing, addPoint, setShapeType, addElement, setColor, setWidth } = drawingSlice.actions;
 export default drawingSlice.reducer;

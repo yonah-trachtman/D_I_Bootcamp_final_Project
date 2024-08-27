@@ -5,22 +5,35 @@ const cors = require("cors");
 const path = require("path");
 const app = express();
 
-// CORS Middleware applied before routes
+// Global CORS configuration applied before routes
+app.use(
+  cors({
+    credentials: true,
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "http://localhost:5174",
+        "https://d-i-bootcamp-final-project.onrender.com"
+      ];
+      if (allowedOrigins.includes(origin) || !origin) {  
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+  })
+);
 
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  cors({
-    credentials: true,
-    origin: ["http://localhost:5173", "http://localhost:3001"],
-  })
-);
 
+// Test route to check CORS
 app.get('/test', (req, res) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
   res.json({ message: 'CORS working!' });
 });
+
 // Apply user routes after middleware
 app.use("/user", userRouter);
 
