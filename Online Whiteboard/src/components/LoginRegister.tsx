@@ -22,7 +22,17 @@ const LoginRegister: React.FC<LoginRegisterProps> = ({ title }) => {
 
 // const throttledNavigate = throttle(navigate, 1000);
 
+const handleSubmit = () => {
+  console.log("Submitting form:", { board_user, password });
+  if (title === "Login") {
+    dispatch(loginUser({ board_user, password }));
+  } else if (title === "Register") {
+    dispatch(registerUser({ board_user, password }));
+  }
+};
+
 useEffect(() => {
+  console.log("Status:", status);
   if (status === "succeeded") {
     if (title === "Login") {
       navigate("/whiteboard");
@@ -32,19 +42,11 @@ useEffect(() => {
   }
 }, [status, title, navigate]);
 
-  const handleSubmit = () => {
-    if (title === "Login") {
-      dispatch(loginUser({ board_user, password }));
-    } else if (title === "Register") {
-      // Dispatch register action
-      dispatch(registerUser({ board_user, password }));
-    }
-  };
-
   useEffect(() => {
     dispatch(clearMessage());
   }, [dispatch]);
 
+  
   return (
     <>
       <h2>{title}</h2>

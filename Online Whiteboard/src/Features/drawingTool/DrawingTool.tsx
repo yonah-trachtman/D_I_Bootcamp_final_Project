@@ -1,7 +1,7 @@
 import React, { useLayoutEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../app/store';
-import { startDrawing, finishDrawing, addPoint, setShapeType, addElement } from './drawingSlice';
+import { startDrawing, finishDrawing, addPoint, setShapeType, addElement, setColor, setWidth } from './drawingSlice';
 import './DrawingTool.css';
 
 interface Point {
@@ -12,11 +12,13 @@ interface Point {
 interface Element {
   type: 'line' | 'rectangle' | 'circle' | 'pencil' | 'eraser';
   points: Point[];
+  color: string;
+  width: number; // Ensure width is included
 }
 
 const DrawingTool: React.FC = () => {
   const dispatch = useDispatch();
-  const { elements, points, drawing, shapeType } = useSelector((state: RootState) => state.drawing);
+  const { elements, points, drawing, shapeType, color, width } = useSelector((state: RootState) => state.drawing);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = event.currentTarget;
@@ -48,26 +50,36 @@ const DrawingTool: React.FC = () => {
       newElement = {
         type: 'line',
         points: [points[0], points[points.length - 1]],
+        color,
+        width
       };
     } else if (shapeType === 'rectangle' && points.length >= 2) {
       newElement = {
         type: 'rectangle',
         points: [points[0], points[points.length - 1]],
+        color,
+        width
       };
     } else if (shapeType === 'circle' && points.length >= 2) {
       newElement = {
         type: 'circle',
         points: [points[0], points[points.length - 1]],
+        color,
+        width
       };
     } else if (shapeType === 'pencil') {
       newElement = {
         type: 'pencil',
         points: [...points],
+        color,
+        width
       };
     } else if (shapeType === 'eraser') {
       newElement = {
         type: 'eraser',
         points: [...points],
+        color,
+        width
       };
     }
 
@@ -86,6 +98,8 @@ const DrawingTool: React.FC = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       elements.forEach((element) => {
+        ctx.strokeStyle = element.color;
+        ctx.lineWidth = element.width; // Set line width from state
         if (element.type === 'line') {
           ctx.beginPath();
           ctx.moveTo(element.points[0].x, element.points[0].y);
@@ -128,6 +142,9 @@ const DrawingTool: React.FC = () => {
       });
 
       if (points.length > 1) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width; // Set line width from state
+
         if (shapeType === 'line') {
           ctx.beginPath();
           ctx.moveTo(points[0].x, points[0].y);
@@ -169,7 +186,7 @@ const DrawingTool: React.FC = () => {
         }
       }
     }
-  }, [elements, points, shapeType]);
+  }, [elements, points, shapeType, color, width]); // Include width in dependencies
 
   return (
     <div>
@@ -204,6 +221,18 @@ const DrawingTool: React.FC = () => {
         >
           Eraser
         </button>
+        <input
+          type="color"
+          value={color}
+          onChange={(e) => dispatch(setColor(e.target.value))}
+          style={{ marginLeft: '10px' }}
+        />
+        <input
+          type="number"
+          value={width}
+          onChange={(e) => dispatch(setWidth(Number(e.target.value)))} // Convert to number
+          style={{ marginLeft: '10px' }}
+        />
       </div>
       <canvas
         id="canvas"

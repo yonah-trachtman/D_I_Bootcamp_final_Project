@@ -13,7 +13,7 @@ function App() {
     <>
     <Header/>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<Navigate to="/Login" />} />
         <Route path='/login' element={<LoginRegister title={"Login"} />} />
         <Route path='/register' element={<LoginRegister title={"Register"} />} />
         <Route path='/whiteboard' element={<DrawingTool  />} />
