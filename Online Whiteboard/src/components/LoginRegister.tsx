@@ -46,6 +46,13 @@ useEffect(() => {
     dispatch(clearMessage());
   }, [dispatch]);
 
+  // useEffect(() => {
+  //   fetch('http://localhost:3001/test')
+  //     .then(response => response.json())
+  //     .then(data => console.log(data)) // Logs the response data to the console
+  //     .catch(error => console.error('Error:', error)); // Logs any errors to the console
+  // }, []);
+
   return (
     <>
       <h2>{title}</h2>
