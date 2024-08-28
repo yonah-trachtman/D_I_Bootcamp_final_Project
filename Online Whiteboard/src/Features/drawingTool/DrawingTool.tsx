@@ -1,24 +1,17 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../app/store';
-import { startDrawing, finishDrawing, addPoint, setShapeType, addElement, setColor, setWidth } from './drawingSlice';
+import { RootState, AppDispatch } from '../../app/store';
+import { startDrawing, finishDrawing, addPoint, addElement, setShapeType, setColor, setWidth, fetchDrawing, updateDrawing } from './drawingSlice';
 import './DrawingTool.css';
 
-interface Point {
-  x: number;
-  y: number;
-}
-
-interface Element {
-  type: 'line' | 'rectangle' | 'circle' | 'pencil' | 'eraser';
-  points: Point[];
-  color: string;
-  width: number; // Ensure width is included
-}
-
 const DrawingTool: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { elements, points, drawing, shapeType, color, width } = useSelector((state: RootState) => state.drawing);
+  const boardID = '1'; // Replace with your actual boardID logic
+
+  useEffect(() => {
+    dispatch(fetchDrawing(boardID));
+  }, [dispatch, boardID]);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = event.currentTarget;
@@ -88,9 +81,12 @@ const DrawingTool: React.FC = () => {
     }
 
     dispatch(finishDrawing());
+
+    // Save or update the drawing after finishing
+    dispatch(updateDrawing({ boardID, elements }));
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d');
 
@@ -99,7 +95,7 @@ const DrawingTool: React.FC = () => {
 
       elements.forEach((element) => {
         ctx.strokeStyle = element.color;
-        ctx.lineWidth = element.width; // Set line width from state
+        ctx.lineWidth = element.width;
         if (element.type === 'line') {
           ctx.beginPath();
           ctx.moveTo(element.points[0].x, element.points[0].y);
@@ -143,7 +139,7 @@ const DrawingTool: React.FC = () => {
 
       if (points.length > 1) {
         ctx.strokeStyle = color;
-        ctx.lineWidth = width; // Set line width from state
+        ctx.lineWidth = width;
 
         if (shapeType === 'line') {
           ctx.beginPath();
@@ -186,7 +182,7 @@ const DrawingTool: React.FC = () => {
         }
       }
     }
-  }, [elements, points, shapeType, color, width]); // Include width in dependencies
+  }, [elements, points, shapeType, color, width]);
 
   return (
     <div>
@@ -225,13 +221,12 @@ const DrawingTool: React.FC = () => {
           type="color"
           value={color}
           onChange={(e) => dispatch(setColor(e.target.value))}
-          style={{ marginLeft: '10px' }}
         />
         <input
           type="number"
           value={width}
-          onChange={(e) => dispatch(setWidth(Number(e.target.value)))} // Convert to number
-          style={{ marginLeft: '10px' }}
+          onChange={(e) => dispatch(setWidth(parseInt(e.target.value, 10)))}
+          min="1"
         />
       </div>
       <canvas
