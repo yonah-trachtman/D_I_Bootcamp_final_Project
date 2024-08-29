@@ -110,12 +110,15 @@ const drawingSlice = createSlice({
         state.elements = action.payload;
       })
       .addCase(updateDrawing.fulfilled, (state, action) => {
+        state.elements = state.elements
         console.log('Drawing updated successfully:', action.payload);
       })
       .addCase(fetchDrawing.rejected, (state, action) => {
+        state.elements = state.elements
         console.error('Failed to fetch drawing:', action.error);
       })
       .addCase(updateDrawing.rejected, (state, action) => {
+        state.elements = state.elements
         console.error('Failed to update drawing:', action.error);
       });
   },
