@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
-const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
 interface Point {
   x: number;
