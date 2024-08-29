@@ -7,6 +7,7 @@ const path = require("path");
 const app = express();
 
 // Global CORS configuration applied before routes
+app.use(cors());
 app.use(
   cors({
     credentials: true,
