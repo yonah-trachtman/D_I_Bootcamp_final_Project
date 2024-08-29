@@ -17,8 +17,7 @@ app.use(
         "https://d-i-bootcamp-final-project.onrender.com"
       ];
 
-      // Log the origin for debugging
-      console.log('CORS Origin:', origin);
+      
 
       if (allowedOrigins.includes(origin) || !origin) {
         callback(null, true);

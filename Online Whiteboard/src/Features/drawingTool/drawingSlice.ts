@@ -41,21 +41,32 @@ export const fetchDrawing = createAsyncThunk(
       throw new Error('Failed to fetch drawing: ' + response.statusText);
     }
     const data = await response.json();
-    return data.elements || [];
+    return Array.isArray(data[0].elements) ? data[0].elements : [];
   }
 );
 
 export const updateDrawing = createAsyncThunk(
   'drawing/updateDrawing',
   async ({ boardID, elements }: { boardID: string; elements: Element[] }) => {
+    if (!Array.isArray(elements)) {
+      throw new Error('Elements must be an array');
+    }
+
     const response = await fetch(`${API_BASE_URL}/drawing/update`, {
-      method: 'PUT',
+      method: 'PUT', 
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ boardID, elements }),
     });
-    if (!response.ok) throw new Error('Failed to update drawing');
+
+    // Log response status and text for debugging
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to update drawing:', response.status, errorText);
+      throw new Error(`Failed to update drawing: ${response.statusText}`);
+    }
+
     return await response.json();
   }
 );
@@ -69,7 +80,7 @@ const drawingSlice = createSlice({
     },
     finishDrawing(state) {
       state.drawing = false;
-      state.points = []; // Clear points after finishing
+      state.points = []; 
     },
     addPoint(state, action) {
       state.points.push(action.payload);
@@ -85,6 +96,9 @@ const drawingSlice = createSlice({
     },
     setWidth(state, action) {
       state.width = action.payload;
+    },
+    clearDrawing(state) {
+      state.elements = []
     },
     setInitialDrawing(state, action) {
       state.elements = action.payload;
@@ -116,6 +130,7 @@ export const {
   setColor,
   setWidth,
   setInitialDrawing,
+  clearDrawing,
 } = drawingSlice.actions;
 
 export const selectDrawing = (state: RootState) => state.drawing;

@@ -6,7 +6,7 @@ module.exports = {
     const { boardID, elements } = req.body;
 
     try {
-      const drawing = await drawingModel.saveDrawing({ boardid: boardID, elements });
+      const drawing = await drawingModel.saveDrawing({ boardID, elements });
       res.status(201).json({
         message: "Drawing saved successfully",
         drawing,
@@ -17,20 +17,11 @@ module.exports = {
     }
   },
 
-  // Retrieve a drawing by boardId
+  // Retrieve a drawing by boardID
   getDrawingByBoardId: async (req, res) => {
-    const { boardID } = req.params;
-
+    const  board_Id  = req.params.boardID;
     try {
-      let drawing = await drawingModel.getDrawingByBoardId(boardID);
-
-      if (!drawing) {
-        // If no drawing is found, create a new one
-        drawing = await drawingModel.saveDrawing({
-          boardid: boardID, // Use the boardID from the request
-          elements: [],
-        });
-      }
+      let drawing = await drawingModel.getDrawingByBoardId(board_Id);
 
       res.status(200).json(drawing);
     } catch (error) {
@@ -42,19 +33,31 @@ module.exports = {
   // Update an existing drawing
   updateDrawing: async (req, res) => {
     const { boardID, elements } = req.body;
+    // const boardID = boardid
+    const elementsJson = JSON.stringify(elements);
 
+  
     try {
+      if (!boardID || !elements) {
+        return res.status(400).json({ message: "Invalid input" });
+      }
+  
       const updatedDrawing = await drawingModel.updateDrawing({
-        boardid: boardID,
-        elements,
+        boardID,
+        elements: elementsJson,
       });
+  
+      if (!updatedDrawing) {
+        return res.status(404).json({ message: "Drawing not found" });
+      }
+  
       res.status(200).json({
         message: "Drawing updated successfully",
         drawing: updatedDrawing,
       });
     } catch (error) {
       console.error('Error updating drawing:', error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "Internal server error", error: error.message });
     }
   },
 };
