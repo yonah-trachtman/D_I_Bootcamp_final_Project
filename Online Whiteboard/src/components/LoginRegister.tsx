@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Box, TextField, Button } from "@mui/material";
 import { loginUser, registerUser, clearMessage } from "./userSlice"; 
 import { RootState, useAppDispatch } from "../app/store"; 
-// import { throttle } from "lodash"
+
 
 interface LoginRegisterProps {
   title: string;
@@ -20,7 +20,7 @@ const LoginRegister: React.FC<LoginRegisterProps> = ({ title }) => {
 
   
 
-// const throttledNavigate = throttle(navigate, 1000);
+
 
 const handleSubmit = () => {
   console.log("Submitting form:", { board_user, password });

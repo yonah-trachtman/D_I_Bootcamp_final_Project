@@ -1,5 +1,6 @@
 const express = require("express");
 const userRouter = require("./routes/userRouter.js");
+const drawingRouter = require("./routes/drawingRouter.js"); // Import the drawing routes
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const path = require("path");
@@ -12,30 +13,33 @@ app.use(
     origin: (origin, callback) => {
       const allowedOrigins = [
         "http://localhost:5174",
+        "http://localhost:3001",
         "https://d-i-bootcamp-final-project.onrender.com"
       ];
-      if (allowedOrigins.includes(origin) || !origin) {  
+
+      
+
+      if (allowedOrigins.includes(origin) || !origin) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
       }
     },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
-
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Test route to check CORS
-app.get('/test', (req, res) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
-  res.json({ message: 'CORS working!' });
-});
 
 // Apply user routes after middleware
 app.use("/user", userRouter);
+
+// Apply drawing routes after middleware
+app.use("/drawing", drawingRouter);  // Add the drawing routes
 
 // Serve static files from the 'Online Whiteboard/build' directory
 app.use(express.static(path.join(__dirname, 'Online Whiteboard/build')));
