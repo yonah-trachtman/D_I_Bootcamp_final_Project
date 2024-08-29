@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../app/store';
 import {
+  Element,
   startDrawing,
   finishDrawing,
   addPoint,
@@ -16,16 +17,6 @@ import {
 import './DrawingTool.css';
 
 
-interface Point {
-  x: number;
-  y: number;
-}
-interface Element {
-  type: 'line' | 'rectangle' | 'circle' | 'pencil' | 'eraser';
-  points: Point[];
-  color: string;
-  width: number;
-}
 
 const DrawingTool: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

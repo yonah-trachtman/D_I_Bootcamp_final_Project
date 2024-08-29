@@ -8,7 +8,7 @@ interface Point {
   y: number;
 }
 
-interface Element {
+export interface Element {
   type: 'line' | 'rectangle' | 'circle' | 'pencil' | 'eraser';
   points: Point[];
   color: string;
