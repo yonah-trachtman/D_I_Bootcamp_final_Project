@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
-const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
 interface Point {
   x: number;
   y: number;
 }
 
-interface Element {
+export interface Element {
   type: 'line' | 'rectangle' | 'circle' | 'pencil' | 'eraser';
   points: Point[];
   color: string;
