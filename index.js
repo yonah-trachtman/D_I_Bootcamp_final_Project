@@ -14,7 +14,8 @@ app.use(
       const allowedOrigins = [
         "http://localhost:5174",
         "http://localhost:3001",
-        "https://d-i-bootcamp-final-project.onrender.com"
+        "https://d-i-bootcamp-final-project.onrender.com",
+        PORT
       ];
 
       
