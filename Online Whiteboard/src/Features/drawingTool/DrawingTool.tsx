@@ -192,7 +192,6 @@ const DrawingTool: React.FC = () => {
           ctx.stroke();
         } else if (shapeType === 'eraser') {
           ctx.strokeStyle = 'white';
-          ctx.lineWidth = 10;
           ctx.beginPath();
           ctx.moveTo(points[0].x, points[0].y);
           points.slice(1).forEach((point) => {
