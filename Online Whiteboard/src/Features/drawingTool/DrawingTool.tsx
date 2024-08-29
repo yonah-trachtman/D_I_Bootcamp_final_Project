@@ -15,6 +15,18 @@ import {
 } from './drawingSlice';
 import './DrawingTool.css';
 
+
+interface Point {
+  x: number;
+  y: number;
+}
+interface Element {
+  type: 'line' | 'rectangle' | 'circle' | 'pencil' | 'eraser';
+  points: Point[];
+  color: string;
+  width: number;
+}
+
 const DrawingTool: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { elements, points, drawing, shapeType, color, width } = useSelector(
@@ -211,7 +223,7 @@ const DrawingTool: React.FC = () => {
   return (
     <div>
       <div style={{ marginBottom: '10px', textAlign: 'center' }}>
-      <button onClick={handleClearAll}>Clear All</button>
+        <button onClick={handleClearAll}>Clear All</button>
         <button
           className={shapeType === 'line' ? 'active' : ''}
           onClick={() => dispatch(setShapeType('line'))}
