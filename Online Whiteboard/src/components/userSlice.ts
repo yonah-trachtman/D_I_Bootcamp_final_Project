@@ -2,8 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 
-const API_BASE_URL = "https://d-i-bootcamp-final-project.onrender.com" || 'http://localhost:3001';
-console.log(API_BASE_URL);
+const API_BASE_URL =  'http://localhost:3001';
+
 
 
 
