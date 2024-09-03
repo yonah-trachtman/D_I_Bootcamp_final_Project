@@ -22,6 +22,7 @@ interface DrawingState {
   shapeType: 'line' | 'rectangle' | 'circle' | 'pencil' | 'eraser';
   color: string;
   width: number;
+  selected: boolean
 }
 
 const initialState: DrawingState = {
@@ -31,6 +32,7 @@ const initialState: DrawingState = {
   shapeType: 'line',
   color: '#000000',
   width: 1,
+  selected: false
 };
 
 export const fetchDrawing = createAsyncThunk(
