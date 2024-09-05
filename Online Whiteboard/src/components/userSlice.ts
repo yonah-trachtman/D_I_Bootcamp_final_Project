@@ -1,11 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-
-const API_BASE_URL =  'http://localhost:3001';
-
-
-
+const API_BASE_URL = 'http://localhost:3001';
 
 export const loginUser = createAsyncThunk(
   'user/loginUser',
@@ -22,7 +18,6 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
-
 
 export const registerUser = createAsyncThunk(
   'user/registerUser',
@@ -43,11 +38,13 @@ export const registerUser = createAsyncThunk(
 interface UserState {
   message: string;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  registrationSuccess: boolean;
 }
 
 const initialState: UserState = {
   message: '',
   status: 'idle',
+  registrationSuccess: false,
 };
 
 const userSlice = createSlice({
@@ -56,6 +53,9 @@ const userSlice = createSlice({
   reducers: {
     clearMessage: (state) => {
       state.message = '';
+    },
+    clearRegistrationSuccess: (state) => {
+      state.registrationSuccess = false; 
     },
   },
   extraReducers: (builder) => {
@@ -76,6 +76,7 @@ const userSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        state.registrationSuccess = true; 
         state.message = action.payload.message;
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -85,6 +86,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { clearMessage } = userSlice.actions;
+export const { clearMessage, clearRegistrationSuccess } = userSlice.actions;
 
 export default userSlice.reducer;

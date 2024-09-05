@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Box, TextField, Button } from "@mui/material";
-import { loginUser, registerUser, clearMessage } from "./userSlice"; 
+import { loginUser, registerUser, clearMessage, clearRegistrationSuccess } from "./userSlice"; 
 import { RootState, useAppDispatch } from "../app/store"; 
-
 
 interface LoginRegisterProps {
   title: string;
@@ -16,37 +15,31 @@ const LoginRegister: React.FC<LoginRegisterProps> = ({ title }) => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { message, status } = useSelector((state: RootState) => state.user);
+  const { message, status, registrationSuccess } = useSelector((state: RootState) => state.user);
 
-  
-
-
-
-const handleSubmit = () => {
-  console.log("Submitting form:", { board_user, password });
-  if (title === "Login") {
-    dispatch(loginUser({ board_user, password }));
-  } else if (title === "Register") {
-    dispatch(registerUser({ board_user, password }));
-  }
-};
-
-useEffect(() => {
-  console.log("Status:", status);
-  if (status === "succeeded") {
+  const handleSubmit = () => {
     if (title === "Login") {
-      navigate("/whiteboard");
+      dispatch(loginUser({ board_user, password }));
     } else if (title === "Register") {
-      navigate("/login");
+      dispatch(registerUser({ board_user, password }));
     }
-  }
-}, [status, title, navigate]);
+  };
+
+  useEffect(() => {
+    if (status === "succeeded") {
+      if (title === "Login") {
+        navigate("/whiteboard");
+      } else if (title === "Register" && registrationSuccess) {
+        navigate("/login");
+        dispatch(clearRegistrationSuccess()); // Clear the registration success flag
+      }
+    }
+  }, [status, title, registrationSuccess, navigate, dispatch]);
 
   useEffect(() => {
     dispatch(clearMessage());
   }, [dispatch]);
 
-  
   return (
     <>
       <h2>{title}</h2>
@@ -59,7 +52,6 @@ useEffect(() => {
           variant="outlined"
           onChange={(e) => setBoardUser(e.target.value)}
         />
-
         <TextField
           sx={{ m: 1 }}
           id="password"
