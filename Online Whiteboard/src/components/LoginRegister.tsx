@@ -31,7 +31,7 @@ const LoginRegister: React.FC<LoginRegisterProps> = ({ title }) => {
         navigate("/whiteboard");
       } else if (title === "Register" && registrationSuccess) {
         navigate("/login");
-        dispatch(clearRegistrationSuccess()); // Clear the registration success flag
+        dispatch(clearRegistrationSuccess());
       }
     }
   }, [status, title, registrationSuccess, navigate, dispatch]);
