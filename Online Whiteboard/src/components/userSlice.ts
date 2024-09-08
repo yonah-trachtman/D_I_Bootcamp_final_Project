@@ -35,6 +35,18 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const logoutUser = createAsyncThunk(
+  'user/logoutUser',
+  async (_, thunkAPI) => {
+    try {
+      await axios.post(`${API_BASE_URL}/user/logout`, {}, { withCredentials: true });
+      return true; // Or any response if needed
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Logout failed');
+    }
+  }
+);
+
 interface UserState {
   message: string;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -55,7 +67,7 @@ const userSlice = createSlice({
       state.message = '';
     },
     clearRegistrationSuccess: (state) => {
-      state.registrationSuccess = false; 
+      state.registrationSuccess = false;
     },
   },
   extraReducers: (builder) => {
@@ -76,12 +88,16 @@ const userSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.registrationSuccess = true; 
+        state.registrationSuccess = true;
         state.message = action.payload.message;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.status = 'failed';
         state.message = action.payload as string;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.status = 'idle';
+        state.message = '';
       });
   },
 });
