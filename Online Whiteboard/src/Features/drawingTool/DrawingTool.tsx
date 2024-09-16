@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../app/store';
 import {
@@ -16,21 +16,28 @@ import {
 } from './drawingSlice';
 import './DrawingTool.css';
 
-
-
 const DrawingTool: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { elements, points, drawing, shapeType, color, width } = useSelector(
     (state: RootState) => state.drawing
   );
-  const boardID = 'test';
+
+  const [chosenBoard, setChosenBoard] = useState<string>('');
+  const [hasSelectedBoard, setHasSelectedBoard] = useState<boolean>(false);
+
+  // useRef to keep track of the canvas element
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    dispatch(fetchDrawing(boardID));
-  }, [dispatch, boardID]);
+    if (hasSelectedBoard && chosenBoard) {
+      dispatch(fetchDrawing(chosenBoard));
+    }
+  }, [dispatch, hasSelectedBoard, chosenBoard]);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = event.currentTarget;
+    const canvas = canvasRef.current;
+    if (!canvas) return; // Add a safeguard to ensure canvas exists
+
     const { left, top } = canvas.getBoundingClientRect();
     const x = event.clientX - left;
     const y = event.clientY - top;
@@ -42,7 +49,9 @@ const DrawingTool: React.FC = () => {
   const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
     if (!drawing) return;
 
-    const canvas = event.currentTarget;
+    const canvas = canvasRef.current;
+    if (!canvas) return; // Add a safeguard to ensure canvas exists
+
     const { left, top } = canvas.getBoundingClientRect();
     const x = event.clientX - left;
     const y = event.clientY - top;
@@ -100,175 +109,197 @@ const DrawingTool: React.FC = () => {
   };
 
   useEffect(() => {
-    if (elements.length > 0) {
-      dispatch(updateDrawing({ boardID, elements }));
+    if (elements.length > 0 && hasSelectedBoard && chosenBoard) {
+      dispatch(updateDrawing({ boardID: chosenBoard, elements }));
     }
-  }, [elements, dispatch, boardID]);
+  }, [elements, dispatch, hasSelectedBoard, chosenBoard]);
 
   useEffect(() => {
-    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+    const canvas = canvasRef.current;
+    if (!canvas) return; // Ensure canvas exists before proceeding
+
     const ctx = canvas.getContext('2d');
+    if (!ctx) return; // Ensure context is available
 
-    if (ctx) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (Array.isArray(elements)) {
-        elements.forEach((element) => {
-          ctx.strokeStyle = element.color;
-          ctx.lineWidth = element.width;
-          if (element.type === 'line') {
-            ctx.beginPath();
-            ctx.moveTo(element.points[0].x, element.points[0].y);
-            ctx.lineTo(element.points[1].x, element.points[1].y);
-            ctx.stroke();
-          } else if (element.type === 'rectangle') {
-            const x = element.points[0].x;
-            const y = element.points[0].y;
-            const width = element.points[1].x - x;
-            const height = element.points[1].y - y;
-            ctx.strokeRect(x, y, width, height);
-          } else if (element.type === 'circle') {
-            const x1 = element.points[0].x;
-            const y1 = element.points[0].y;
-            const x2 = element.points[1].x;
-            const y2 = element.points[1].y;
-            const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-            ctx.beginPath();
-            ctx.arc(x1, y1, radius, 0, 2 * Math.PI);
-            ctx.stroke();
-          } else if (element.type === 'pencil') {
-            ctx.beginPath();
-            ctx.moveTo(element.points[0].x, element.points[0].y);
-            element.points.forEach((point) => {
-              ctx.lineTo(point.x, point.y);
-            });
-            ctx.stroke();
-          } else if (element.type === 'eraser') {
-            ctx.strokeStyle = 'white';
-            ctx.beginPath();
-            ctx.moveTo(element.points[0].x, element.points[0].y);
-            element.points.forEach((point) => {
-              ctx.lineTo(point.x, point.y);
-            });
-            ctx.stroke();
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 1;
-          }
-        });
-      } else {
-        console.error('Elements is not an array:', elements);
-      }
-
-      if (points.length > 1) {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = width;
-
-        if (shapeType === 'line') {
+    if (Array.isArray(elements)) {
+      elements.forEach((element) => {
+        ctx.strokeStyle = element.color;
+        ctx.lineWidth = element.width;
+        if (element.type === 'line') {
           ctx.beginPath();
-          ctx.moveTo(points[0].x, points[0].y);
-          ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+          ctx.moveTo(element.points[0].x, element.points[0].y);
+          ctx.lineTo(element.points[1].x, element.points[1].y);
           ctx.stroke();
-        } else if (shapeType === 'rectangle') {
-          const x = points[0].x;
-          const y = points[0].y;
-          const width = points[points.length - 1].x - x;
-          const height = points[points.length - 1].y - y;
+        } else if (element.type === 'rectangle') {
+          const x = element.points[0].x;
+          const y = element.points[0].y;
+          const width = element.points[1].x - x;
+          const height = element.points[1].y - y;
           ctx.strokeRect(x, y, width, height);
-        } else if (shapeType === 'circle') {
-          const x1 = points[0].x;
-          const y1 = points[0].y;
-          const x2 = points[points.length - 1].x;
-          const y2 = points[points.length - 1].y;
+        } else if (element.type === 'circle') {
+          const x1 = element.points[0].x;
+          const y1 = element.points[0].y;
+          const x2 = element.points[1].x;
+          const y2 = element.points[1].y;
           const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
           ctx.beginPath();
           ctx.arc(x1, y1, radius, 0, 2 * Math.PI);
           ctx.stroke();
-        } else if (shapeType === 'pencil') {
+        } else if (element.type === 'pencil') {
           ctx.beginPath();
-          ctx.moveTo(points[0].x, points[0].y);
-          points.slice(1).forEach((point) => {
+          ctx.moveTo(element.points[0].x, element.points[0].y);
+          element.points.forEach((point) => {
             ctx.lineTo(point.x, point.y);
           });
           ctx.stroke();
-        } else if (shapeType === 'eraser') {
+        } else if (element.type === 'eraser') {
           ctx.strokeStyle = 'white';
           ctx.beginPath();
-          ctx.moveTo(points[0].x, points[0].y);
-          points.slice(1).forEach((point) => {
+          ctx.moveTo(element.points[0].x, element.points[0].y);
+          element.points.forEach((point) => {
             ctx.lineTo(point.x, point.y);
           });
           ctx.stroke();
           ctx.strokeStyle = 'black';
           ctx.lineWidth = 1;
         }
+      });
+    } else {
+      console.error('Elements is not an array:', elements);
+    }
+
+    if (points.length > 1) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+
+      if (shapeType === 'line') {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+        ctx.stroke();
+      } else if (shapeType === 'rectangle') {
+        const x = points[0].x;
+        const y = points[0].y;
+        const width = points[points.length - 1].x - x;
+        const height = points[points.length - 1].y - y;
+        ctx.strokeRect(x, y, width, height);
+      } else if (shapeType === 'circle') {
+        const x1 = points[0].x;
+        const y1 = points[0].y;
+        const x2 = points[points.length - 1].x;
+        const y2 = points[points.length - 1].y;
+        const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        ctx.beginPath();
+        ctx.arc(x1, y1, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+      } else if (shapeType === 'pencil') {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        points.slice(1).forEach((point) => {
+          ctx.lineTo(point.x, point.y);
+        });
+        ctx.stroke();
+      } else if (shapeType === 'eraser') {
+        ctx.strokeStyle = 'white';
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        points.slice(1).forEach((point) => {
+          ctx.lineTo(point.x, point.y);
+        });
+        ctx.stroke();
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
       }
     }
   }, [elements, points, shapeType, color, width]);
 
   const handleClearAll = () => {
-    dispatch(clearDrawing()); 
-    dispatch(updateDrawing({ boardID, elements: [] })); 
+    dispatch(clearDrawing());
+    dispatch(updateDrawing({ boardID: chosenBoard, elements: [] }));
+  };
+
+  const handleBoardSelection = () => {
+    if (chosenBoard.trim()) {
+      setHasSelectedBoard(true);
+    }
   };
 
   return (
     <div>
-      <div style={{ marginBottom: '10px', textAlign: 'center' }}>
-        <button onClick={handleClearAll}>Clear All</button>
-        <button
-          className={shapeType === 'line' ? 'active' : ''}
-          onClick={() => dispatch(setShapeType('line'))}
-        >
-          Line
-        </button>
-        <button
-          className={shapeType === 'rectangle' ? 'active' : ''}
-          onClick={() => dispatch(setShapeType('rectangle'))}
-        >
-          Rectangle
-        </button>
-        <button
-          className={shapeType === 'circle' ? 'active' : ''}
-          onClick={() => dispatch(setShapeType('circle'))}
-        >
-          Circle
-        </button>
-        <button
-          className={shapeType === 'pencil' ? 'active' : ''}
-          onClick={() => dispatch(setShapeType('pencil'))}
-        >
-          Pencil
-        </button>
-        <button
-          className={shapeType === 'eraser' ? 'active' : ''}
-          onClick={() => dispatch(setShapeType('eraser'))}
-        >
-          Eraser
-        </button>
-        <input
-          type="color"
-          value={color}
-          onChange={(e) => dispatch(setColor(e.target.value))}
-        />
-        <input
-          type="number"
-          value={width}
-          onChange={(e) => dispatch(setWidth(parseInt(e.target.value, 10)))}
-          min="1"
-        />
-      </div>
-      <canvas
-        id="canvas"
-        width={window.innerWidth}
-        height={window.innerHeight * 0.9}
-        style={{
-          border: '2px solid black',
-          display: 'block',
-          margin: '0 auto',
-        }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-      />
+      {!hasSelectedBoard ? (
+        <div style={{ textAlign: 'center' }}>
+          <input
+            type="text"
+            placeholder="Enter Board ID"
+            value={chosenBoard}
+            onChange={(e) => setChosenBoard(e.target.value)}
+          />
+          <button onClick={handleBoardSelection}>Enter Board</button>
+        </div>
+      ) : (
+        <>
+          <div style={{ textAlign: 'center' }}>
+            <button onClick={handleClearAll}>Clear All</button>
+            <button
+              className={shapeType === 'line' ? 'active' : ''}
+              onClick={() => dispatch(setShapeType('line'))}
+            >
+              Line
+            </button>
+            <button
+              className={shapeType === 'rectangle' ? 'active' : ''}
+              onClick={() => dispatch(setShapeType('rectangle'))}
+            >
+              Rectangle
+            </button>
+            <button
+              className={shapeType === 'circle' ? 'active' : ''}
+              onClick={() => dispatch(setShapeType('circle'))}
+            >
+              Circle
+            </button>
+            <button
+              className={shapeType === 'pencil' ? 'active' : ''}
+              onClick={() => dispatch(setShapeType('pencil'))}
+            >
+              Pencil
+            </button>
+            <button
+              className={shapeType === 'eraser' ? 'active' : ''}
+              onClick={() => dispatch(setShapeType('eraser'))}
+            >
+              Eraser
+            </button>
+            <input
+              type="color"
+              value={color}
+              onChange={(e) => dispatch(setColor(e.target.value))}
+            />
+            <input
+              type="number"
+              value={width}
+              onChange={(e) => dispatch(setWidth(parseInt(e.target.value, 10)))}
+              min="1"
+            />
+          </div>
+          <canvas
+            id="canvas"
+            ref={canvasRef}
+            width={window.innerWidth}
+            height={window.innerHeight * 0.9}
+            style={{
+              border: '2px solid black',
+              display: 'block',
+              margin: '0 auto',
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+          />
+        </>
+      )}
     </div>
   );
 };
